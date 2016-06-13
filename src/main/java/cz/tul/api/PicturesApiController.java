@@ -35,6 +35,8 @@ public class PicturesApiController{
 
     private FileManager imageDataMgr;
 
+    private FileManager imageDataMgr;
+
     private org.slf4j.Logger Logger = LoggerFactory.getLogger(PicturesApiController.class);
 
     @Autowired
@@ -61,6 +63,45 @@ public class PicturesApiController{
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(picture, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = ServerApi.PICTURES_BY_NAME_PATH, method = RequestMethod.GET)
+    public ResponseEntity<List<Picture>> getPicturesByName(@PathVariable("name") String name) {
+
+        this.Logger.info("Get pictures by name: " + name);
+
+        List<Picture> pictures = this.Pictures.findByNameIgnoreCaseContaining(name);
+        if(pictures == null)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(pictures, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = ServerApi.PICTURES_BY_AUTHOR_PATH, method = RequestMethod.GET)
+    public ResponseEntity<List<Picture>> getPicturesByAuthor(@PathVariable("id") UUID id) {
+
+        this.Logger.info("Get pictures by author: " + id);
+
+        List<Picture> pictures = this.Pictures.findByAuthorId(id);
+        if(pictures == null)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(pictures, HttpStatus.OK);
+    }
+
+    @RequestMapping(value = ServerApi.PICTURES_BY_TAG_PATH, method = RequestMethod.GET)
+    public ResponseEntity<List<Picture>> getPicturesByTag(@PathVariable("name") String name) {
+
+        this.Logger.info("Get pictures by tag name: " + name);
+
+        List<Picture> pictures = this.Pictures.findByTagsName(name);
+        if(pictures == null)
+        {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(pictures, HttpStatus.OK);
     }
 
     @RequestMapping(value = ServerApi.PICTURE_PATH, method = RequestMethod.DELETE)
@@ -116,10 +157,48 @@ public class PicturesApiController{
         }
     }
 
+<<<<<<< HEAD
     @RequestMapping(value = ServerApi.UPLOAD_PATH, method = RequestMethod.POST)
     public
     @ResponseBody
     ImageStatus uploadImage(@PathVariable("name") String name,
+=======
+
+    @RequestMapping(value = ServerApi.PICTURE_LIKE_PATH, method = RequestMethod.PUT)
+    public ResponseEntity<Picture> likePicture(@PathVariable(value = "id") UUID id) {
+        if (!this.Pictures.exists(id)) {
+            this.Logger.warn("Picture for like not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            this.Logger.info("Liked picture: " + id);
+
+            Picture pic = this.Pictures.findOne(id);
+            pic.incrementLike();
+
+            this.Pictures.save(pic);
+            return new ResponseEntity<>(pic,HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = ServerApi.PICTURE_DISLIKE_PATH, method = RequestMethod.PUT)
+    public ResponseEntity<Picture> dislikePicture(@PathVariable(value = "id") UUID id) {
+        if (!this.Pictures.exists(id)) {
+            this.Logger.warn("Picture for dislike not found");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } else {
+            this.Logger.info("Disliked picture: " + id);
+
+            Picture pic = this.Pictures.findOne(id);
+            pic.incrementDislikes();
+
+            this.Pictures.save(pic);
+            return new ResponseEntity<>(pic, HttpStatus.OK);
+        }
+    }
+
+    @RequestMapping(value = ServerApi.UPLOAD_PATH, method = RequestMethod.POST)
+    public @ResponseBody ImageStatus uploadImage(@PathVariable("name") String name,
+>>>>>>> 9d8341115369200efee7ce84954f83e5180b78b9
                             @RequestParam("data") MultipartFile imageData,
                             HttpServletResponse response) {
 
@@ -137,6 +216,7 @@ public class PicturesApiController{
     }
 
     public void setFileManager() {
+<<<<<<< HEAD
 
         try {
 
@@ -146,6 +226,13 @@ public class PicturesApiController{
 
             e.printStackTrace();
 
+=======
+        try {
+            imageDataMgr = FileManager.get();
+
+        } catch (IOException e) {
+            this.Logger.error(e.getMessage());
+>>>>>>> 9d8341115369200efee7ce84954f83e5180b78b9
         }
     }
 }
